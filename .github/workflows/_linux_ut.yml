@@ -47,6 +47,7 @@ jobs:
         run: |
           pwd
           source activate pytorch-mtl
+          cd ..
           cp -r /home/ruijie/pytorch ./
       
       - name: Build Pytorch XPU

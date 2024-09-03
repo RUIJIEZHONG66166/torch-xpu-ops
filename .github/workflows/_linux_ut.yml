@@ -77,7 +77,6 @@ jobs:
         if: contains(inputs.ut, 'op_example') || github.event_name == 'schedule'
         run: |
           cd ${{ github.workspace }}
-          xpu-smi discovery
           source activate stock-pytorch
           source /home/ruijie/env.sh
           cd ${{ github.workspace }}

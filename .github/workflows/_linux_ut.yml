@@ -57,7 +57,7 @@ jobs:
       - name: Build Pytorch XPU
         run: |
           source activate stock-pytorch
-          source /home/ruijie/env.sh
+          source /home/ruijie/env.sh --force
           pip install mkl-static mkl-include
           cd ../pytorch
           if [[ ${{ inputs.abi }} == '0' ]]; then
@@ -69,7 +69,7 @@ jobs:
       - name: Torch Config
         run: |
           source activate stock-pytorch
-          source /home/ruijie/env.sh
+          source /home/ruijie/env.sh --force
           python -c "import torch; print(torch.__config__.show())"
           python -c "import torch; print(torch.__config__.parallel_info())"
           python -c "import torch; print(torch.__config__.torch.xpu.device_count())"
@@ -78,7 +78,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           source activate stock-pytorch
-          source /home/ruijie/env.sh
+          source /home/ruijie/env.sh --force
           cd ${{ github.workspace }}
           cd examples
           pip install pytest
@@ -87,7 +87,7 @@ jobs:
         if: contains(inputs.ut, 'op_extended') || github.event_name == 'schedule'
         run: |
           source activate stock-pytorch
-          source /home/ruijie/env.sh
+          source /home/ruijie/env.sh --force
           export PYTORCH_TEST_WITH_SLOW=1
           cd ../pytorch/third_party/torch-xpu-ops/test/xpu/extended/
           timeout 10000 python run_test_with_skip.py 
@@ -95,7 +95,7 @@ jobs:
         if: contains(inputs.ut, 'op_ut') || github.event_name == 'schedule'
         run: |
           source activate stock-pytorch
-          source /home/ruijie/env.sh
+          source /home/ruijie/env.sh --force
           export PYTORCH_ENABLE_XPU_FALLBACK=1
           export PYTORCH_TEST_WITH_SLOW=1
           cd ../pytorch/third_party/torch-xpu-ops/test/xpu
@@ -109,7 +109,7 @@ jobs:
         if: contains(inputs.ut, 'torch_xpu') || github.event_name == 'schedule'
         run: |
           source activate stock-pytorch
-          source /home/ruijie/env.sh
+          source /home/ruijie/env.sh --force
           cd ../pytorch
           TEST_REPORTS_DIR=$(pwd)/test/test-reports
           rm -rf "$TEST_REPORTS_DIR" && mkdir -p "$TEST_REPORTS_DIR"

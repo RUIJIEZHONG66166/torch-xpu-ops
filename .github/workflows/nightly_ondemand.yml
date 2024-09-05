@@ -75,5 +75,5 @@ jobs:
       pytorch: ${{ github.event_name == 'schedule' && 'main' || inputs.pytorch }}
       python: ${{ github.event_name == 'schedule' && '3.10' || inputs.python }}
       triton: ${{ github.event_name == 'schedule' && '' || inputs.triton }}
-      runner: WSL2404
+      runner: WSL_ARC_2204
       

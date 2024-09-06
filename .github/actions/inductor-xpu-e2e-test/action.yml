@@ -46,7 +46,7 @@ runs:
       shell: bash
       run: |
         source activate stock-pytorch
-        source /home/ruijie/env.sh
+        source /home/ruijie/env.sh --force
         pip install numpy==1.26.4
     - name: E2E Test (${{ inputs.suite }} ${{ inputs.dt }} ${{ inputs.mode }} ${{ inputs.scenario }})
       shell: bash
@@ -54,7 +54,7 @@ runs:
         HUGGING_FACE_HUB_TOKEN: ${{ inputs.hf_token }}
       run: |
         source activate stock-pytorch
-        source /home/ruijie/env.sh
+        source /home/ruijie/env.sh --force
         cp .github/scripts/inductor_xpu_test.sh ../pytorch
         cd ../pytorch
 
@@ -127,7 +127,7 @@ runs:
         done
 
         source activate stock-pytorch
-        source /home/ruijie/env.sh
+        source /home/ruijie/env.sh --force
         cd ${{ github.workspace }}
         cp .github/scripts/inductor_summary.py ../pytorch
         cd ../pytorch

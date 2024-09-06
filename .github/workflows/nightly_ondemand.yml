@@ -80,7 +80,6 @@ jobs:
   Linux-Nightly-Ondemand-E2E-Tests:
     runs-on: WSL_ARC_2204
     # Don't run on forked repos
-    if: github.repository_owner == 'intel'
     timeout-minutes: 3600
     env:
       pytorch: ${{ github.event_name == 'schedule' && 'main' || inputs.pytorch }}

@@ -78,7 +78,7 @@ jobs:
       runner: linux.idc.xpu
 
   Linux-Nightly-Ondemand-E2E-Tests:
-    runs-on: WSL_ARC_2204
+    runs-on: WSL_MTL_2404
     # Don't run on forked repos
     timeout-minutes: 3600
     env:

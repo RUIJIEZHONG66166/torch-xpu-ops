@@ -52,10 +52,10 @@ jobs:
         run: |
           pwd
           which conda && conda clean -ay
-          conda remove --all -y -n xpu_op_${ZE_AFFINITY_MASK} || \
-                rm -rf $(dirname ${CONDA_EXE})/../envs/xpu_op_${ZE_AFFINITY_MASK}
-          conda create -n xpu_op_${ZE_AFFINITY_MASK} python=${{ inputs.python }} cmake ninja -y
-          source activate xpu_op_${ZE_AFFINITY_MASK}
+          conda remove --all -y -n stock_pytorch_coral || \
+                rm -rf $(dirname ${CONDA_EXE})/../envs/stock_pytorch_coral
+          conda create -n stock_pytorch_coral python=${{ inputs.python }} cmake ninja -y
+          source activate stock_pytorch_coral
           cd ../ && rm -rf pytorch
           git clone https://github.com/pytorch/pytorch pytorch
           cd pytorch && git checkout $(echo ${{ env.pytorch }} |sed 's/^nightly_wheel$/nightly/')
@@ -73,7 +73,7 @@ jobs:
           fi
       - name: Triton Installation
         run: |
-          source activate xpu_op_${ZE_AFFINITY_MASK}
+          source activate stock_pytorch_coral
           cd ../pytorch
           TRITON_REPO="https://github.com/intel/intel-xpu-backend-for-triton"
           if [ -z ${{ inputs.triton }} ]; then
@@ -87,8 +87,8 @@ jobs:
           fi
       - name: Build Pytorch XPU
         run: |
-          source activate xpu_op_${ZE_AFFINITY_MASK}
-          source .github/scripts/env.sh
+          source activate stock_pytorch_coral
+          source ~/env_coral.sh
           pip install mkl-static mkl-include
           cd ../pytorch
           if [[ ${{ inputs.abi }} == '0' ]]; then
@@ -108,8 +108,8 @@ jobs:
           pip install -r .ci/docker/requirements-ci.txt
       - name: Torch Config
         run: |
-          source activate xpu_op_${ZE_AFFINITY_MASK}
-          source .github/scripts/env.sh
+          source activate stock_pytorch_coral
+          source ~/env_coral.sh
           python -c "import torch; print(torch.__config__.show())"
           python -c "import torch; print(torch.__config__.parallel_info())"
           python -c "import torch; print(torch.__config__.torch.xpu.device_count())"
@@ -122,8 +122,8 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           xpu-smi discovery
-          source .github/scripts/env.sh
-          source activate xpu_op_${ZE_AFFINITY_MASK}
+          source ~/env_coral.sh
+          source activate stock_pytorch_coral
           cd ${{ github.workspace }}
           cd examples
           pip install pytest
@@ -131,16 +131,16 @@ jobs:
       - name: Run XPU OP Extended UT
         if: contains(inputs.ut, 'op_extended') || github.event_name == 'schedule'
         run: |
-          source .github/scripts/env.sh
-          source activate xpu_op_${ZE_AFFINITY_MASK}
+          source ~/env_coral.sh
+          source activate stock_pytorch_coral
           export PYTORCH_TEST_WITH_SLOW=1
           cd ../pytorch/third_party/torch-xpu-ops/test/xpu/extended/
           timeout 10000 python run_test_with_skip.py 
       - name: Run XPU OP UT
         if: contains(inputs.ut, 'op_ut') || github.event_name == 'schedule'
         run: |
-          source .github/scripts/env.sh
-          source activate xpu_op_${ZE_AFFINITY_MASK}
+          source ~/env_coral.sh
+          source activate stock_pytorch_coral
           export PYTORCH_ENABLE_XPU_FALLBACK=1
           export PYTORCH_TEST_WITH_SLOW=1
           cd ../pytorch/third_party/torch-xpu-ops/test/xpu
@@ -153,8 +153,8 @@ jobs:
       - name: Run Torch XPU UT
         if: contains(inputs.ut, 'torch_xpu') || github.event_name == 'schedule'
         run: |
-          source .github/scripts/env.sh
-          source activate xpu_op_${ZE_AFFINITY_MASK}
+          source ~/env_coral.sh
+          source activate stock_pytorch_coral
           cd ../pytorch
           TEST_REPORTS_DIR=$(pwd)/test/test-reports
           rm -rf "$TEST_REPORTS_DIR" && mkdir -p "$TEST_REPORTS_DIR"

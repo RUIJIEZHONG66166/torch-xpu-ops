@@ -97,6 +97,7 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
           call "C:\Program Files (x86)\Intel\oneAPI\ocloc\latest\env\vars.bat"
+          dpcpp --version
           call conda activate windows_ci
           cd ../pytorch
           pip install -r requirements.txt

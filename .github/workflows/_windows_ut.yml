@@ -55,9 +55,9 @@ jobs:
       - name: Prepare Stock Pytorch
         shell: cmd
         run: |
-          echo "C:\ProgramData\miniforge3\Scripts" >> "$GITHUB_PATH"
-          echo "C:\ProgramData\miniforge3\Library\bin" >> "$GITHUB_PATH"
-          call "C:\ProgramData\miniforge3\Scripts\activate.bat"
+          echo "C:\ProgramData\mambaforge-pypy3\Scripts" >> "$GITHUB_PATH"
+          echo "C:\ProgramData\mambaforge-pypy3\Library\bin" >> "$GITHUB_PATH"
+          call "C:\ProgramData\mambaforge-pypy3\Scripts\activate.bat"
           call conda clean -ay
           call conda remove --all -y -n windows_ci
           call conda create -n windows_ci python=${{ inputs.python }} cmake ninja -y
@@ -93,10 +93,11 @@ jobs:
       - name: Build Pytorch XPU
         shell: cmd
         run: |
-          call "C:\ProgramData\miniforge3\Scripts\activate.bat"
+          call "C:\ProgramData\mambaforge-pypy3\Scripts\activate.bat"
           call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
           call "C:\Program Files (x86)\Intel\oneAPI\ocloc\latest\env\vars.bat"
+          dpcpp --version
           call conda activate windows_ci
           cd ../pytorch
           pip install -r requirements.txt
@@ -119,7 +120,7 @@ jobs:
       - name: Torch Config
         shell: cmd
         run: |
-          call "C:\ProgramData\miniforge3\Scripts\activate.bat"
+          call "C:\ProgramData\mambaforge-pypy3\Scripts\activate.bat"
           call conda activate windows_ci
           call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
           python -c "import torch; print(torch.__config__.show())"
@@ -144,7 +145,7 @@ jobs:
         if: contains(inputs.ut, 'op_extended') || github.event_name == 'schedule'
         shell: cmd
         run: |
-          call "C:\ProgramData\miniforge3\Scripts\activate.bat"
+          call "C:\ProgramData\mambaforge-pypy3\Scripts\activate.bat"
           call conda activate windows_ci
           call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
           set PYTORCH_TEST_WITH_SLOW=1

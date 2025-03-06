@@ -22,7 +22,6 @@ permissions: read-all
 jobs:
   preci-lint-check:
     # Don't run on forked repos and draft PRs
-    if: ${{ github.repository_owner == 'intel' }}
     name: preci-lint-check
     runs-on: ubuntu-22.04
     steps:
@@ -226,7 +225,7 @@ jobs:
   
   preci-windows:
     # Don't run on forked repos and draft PRs
-    if: ${{ (github.repository_owner == 'intel') && (github.event.pull_request.draft == false) && contains(github.event.pull_request.labels.*.name, 'windows_ci') }} 
+    if: ${{ (github.event.pull_request.draft == false) && contains(github.event.pull_request.labels.*.name, 'windows_ci') }}
     name: preci-windows
     needs: preci-lint-check
     uses: ./.github/workflows/_windows_ut.yml

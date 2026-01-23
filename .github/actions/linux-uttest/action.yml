@@ -18,6 +18,8 @@ runs:
       shell: timeout 3600 bash -xe {0}
       if: ${{ inputs.ut_name == 'op_regression' || inputs.ut_name == 'basic' }}
       run: |
+        source activate sycl_free_fucntion_baseline
+        source ./.github/scripts/env_test.sh
         log_dir="${{ github.workspace }}/ut_log/${{ inputs.ut_name }}"
         mkdir -p ${log_dir}
         cd pytorch/third_party/torch-xpu-ops/test/regressions
@@ -29,6 +31,8 @@ runs:
       shell: timeout 300 bash -xe {0}
       if: ${{ inputs.ut_name == 'op_regression_dev1' || inputs.ut_name == 'basic' }}
       run: |
+        source activate sycl_free_fucntion_baseline
+        source ./.github/scripts/env_test.sh
         log_dir="${{ github.workspace }}/ut_log/${{ inputs.ut_name }}"
         mkdir -p ${log_dir}
         cd pytorch/third_party/torch-xpu-ops/test/regressions
@@ -41,6 +45,8 @@ runs:
       shell: timeout 3600 bash -xe {0}
       if: ${{ inputs.ut_name == 'op_transformers' || inputs.ut_name == 'basic' }}
       run: |
+        source activate sycl_free_fucntion_baseline
+        source ./.github/scripts/env_test.sh
         export PYTORCH_TEST_WITH_SLOW=1
         log_dir="${{ github.workspace }}/ut_log/${{ inputs.ut_name }}"
         mkdir -p ${log_dir}
@@ -54,6 +60,8 @@ runs:
       shell: timeout 3600 bash -xe {0}
       if: ${{ inputs.ut_name == 'op_extended' || inputs.ut_name == 'basic' }}
       run: |
+        source activate sycl_free_fucntion_baseline
+        source ./.github/scripts/env_test.sh
         export PYTORCH_TEST_WITH_SLOW=1
         log_dir="${{ github.workspace }}/ut_log/${{ inputs.ut_name }}"
         mkdir -p ${log_dir}
@@ -68,6 +76,8 @@ runs:
       shell: timeout 18000 bash -xe {0}
       if: ${{ inputs.ut_name == 'op_ut' }}
       run: |
+        source activate sycl_free_fucntion_baseline
+        source ./.github/scripts/env_test.sh
         export PYTORCH_TEST_WITH_SLOW=1
         mkdir -p ut_log/op_ut
         cd pytorch/third_party/torch-xpu-ops/test/xpu

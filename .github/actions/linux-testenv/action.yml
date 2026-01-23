@@ -58,6 +58,7 @@ runs:
     - name: Prepare Stock Pytorch
       shell: bash -xe {0}
       run: |
+        source activate sycl_free_fucntion_baseline
         # install pytorch
         if [ $(echo "${{ inputs.pytorch }}" |grep -w "release_wheel" -c) -ne 0 ];then
           pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/xpu
@@ -69,6 +70,7 @@ runs:
           latest_dir="$(find . -type d -name "Torch-XPU-Wheel-*" |sort -V |tail -n 1)"
           pip install --force-reinstall $(find ${latest_dir} -name "*torch*.whl")
         fi
+        source ${{ github.workspace }}/torch-xpu-ops/.github/scripts/env_test.sh
         TORCH_COMMIT_ID=$(python -c 'import torch; print(torch.version.git_version)')
         if [[ "${{ inputs.pytorch }}" == *"https://"* ]];then
           PYTORCH_REPO="$(echo ${{ inputs.pytorch }} |sed 's/@.*//')"
@@ -86,6 +88,7 @@ runs:
     - name: Prepare Torch-xpu-ops
       shell: bash -xe {0}
       run: |
+        source activate sycl_free_fucntion_baseline
         cd pytorch
         rm -rf third_party/torch-xpu-ops
         if [[ "${{ inputs.torch_xpu_ops }}" == *"https://"* ]];then
@@ -112,6 +115,7 @@ runs:
       shell: bash -xe {0}
       run: |
         # common
+        source activate sycl_free_fucntion_baseline
         pip install pandas psutil scipy pyyaml
         cd pytorch
         if [[ "${{ inputs.suite }}" == *"huggingface"* ]];then
@@ -186,6 +190,8 @@ runs:
       shell: bash -xe {0}
       run: |
         printenv
+        source activate sycl_free_fucntion_baseline
+        source ${{ github.workspace }}/torch-xpu-ops/.github/scripts/env_test.sh
         python -c "import torch; print(torch.__config__.show())"
         python -c "import torch; print(torch.__config__.parallel_info())"
         python -c "import torch; print(torch.__config__.torch.xpu.device_count())"

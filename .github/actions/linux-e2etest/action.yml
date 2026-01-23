@@ -33,6 +33,8 @@ runs:
     - name: E2E Test (${{ inputs.suite }} ${{ inputs.dt }} ${{ inputs.mode }} ${{ inputs.scenario }})
       shell: bash -xe {0}
       run: |
+        source activate sycl_free_fucntion_baseline
+        source ./.github/scripts/env_test.sh
         cp ./.github/scripts/inductor_xpu_test.sh ./pytorch
         cd ./pytorch
         if [ "${{ github.event_name }}" != "pull_request" ];then
@@ -114,6 +116,7 @@ runs:
     - name: Summary E2E Test (${{ inputs.suite }} ${{ inputs.dt }} ${{ inputs.mode }} ${{ inputs.scenario }})
       shell: bash -xe {0}
       run: |
+        source activate sycl_free_fucntion_baseline
         cd ./pytorch
         rm -f inductor_log/summary_accuracy.csv
         for var in $(find inductor_log/ -name "inductor_*_xpu_accuracy.csv")

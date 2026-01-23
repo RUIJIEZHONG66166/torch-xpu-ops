@@ -58,41 +58,26 @@ jobs:
     needs: runner
     if: ${{ ! endsWith(inputs.pytorch, '_wheel') }}
     runs-on: ${{ needs.runner.outputs.runner_id }}
-    container:
-      image: 'pytorch/manylinux2_28-builder:xpu-main'
-      volumes:
-        - ${{ github.workspace }}:${{ github.workspace }}
-      env:
-        PATH: /tmp/xpu-tool/myvenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        AGENT_TOOLSDIRECTORY: /tmp/xpu-tool
-        PIP_CACHE_DIR: /tmp/xpu-tool/.pipcache
     env:
       GH_TOKEN: ${{ github.token }}
+      XPU_ONEAPI_PATH: /opt/intel/oneapi
     timeout-minutes: 300
     steps:
-      - name: Install gh-cli
+      - name: Setup based Env
         run: |
-          cat /etc/os-release
-          hostname && id
-          # install gh
-          dnf install -y 'dnf-command(config-manager)'
-          dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-          dnf install -y gh --repo gh-cli
-          gh --version
-      - name: Setup python-${{ inputs.python }}
-        run: |
-          rm -rf /tmp/xpu-tool/myvenv
-          local_python=$(echo ${{ inputs.python }} |awk -F. '{printf("cp%s%s-cp%s%s", $1, $2, $1, $2)}')
-          /opt/python/${local_python}/bin/python -m venv /tmp/xpu-tool/myvenv
-          which python && python -V
-          which pip && pip list
-          pip install -U pip wheel setuptools
+          pwd
+          which conda && conda clean -ay
+          conda remove --all -y -n sycl_free_fucntion_baseline || \
+              rm -rf $(dirname ${CONDA_EXE})/../envs/sycl_free_fucntion_baseline
+          conda create -n sycl_free_fucntion_baseline python=${{ inputs.python }} cmake ninja -y
       - name: Checkout torch-xpu-ops
         uses: actions/checkout@v4
         with:
           path: torch-xpu-ops
       - name: Build Pytorch on ${{ needs.runner.outputs.hostname }}
         run: |
+          source activate sycl_free_fucntion_baseline
+          rm -rf ${{ github.workspace }}/*torch*.whl
           export USE_XCCL=1
           export IS_XPU_CI=1
           # only build pvc for CI
@@ -113,8 +98,7 @@ jobs:
             TORCH_XPU_OPS_REPO="https://github.com/intel/torch-xpu-ops.git"
             TORCH_XPU_OPS_COMMIT="${{ inputs.torch_xpu_ops }}"
           fi
-          # gcc 13
-          source /opt/rh/gcc-toolset-13/enable
+
           source ${{ github.workspace }}/torch-xpu-ops/.github/scripts/env.sh
           ${{ github.workspace }}/torch-xpu-ops/.github/scripts/build.sh \
             --WORKSPACE="${{ github.workspace }}" \
@@ -129,9 +113,9 @@ jobs:
           fi
       - name: Build Torchvision and Torchaudio
         run: |
-          # gcc 13
-          source /opt/rh/gcc-toolset-13/enable
-          cd ./pytorch
+          source activate sycl_free_fucntion_baseline
+          source ${{ github.workspace }}/torch-xpu-ops/.github/scripts/env_test.sh
+          cd ${{ github.workspace }}/pytorch
           TORCHVISION_COMMIT_ID="$(cat .github/ci_commit_pins/vision.txt)"
           TORCHAUDIO_COMMIT_ID="$(cat .github/ci_commit_pins/audio.txt)"
           git clone --single-branch -b main https://github.com/pytorch/vision.git xpu-vision
@@ -154,7 +138,8 @@ jobs:
           cp dist/*.whl ${{ github.workspace }}
       - name: Build Triton
         run: |
-          cd ./pytorch
+          source activate sycl_free_fucntion_baseline
+          cd ${{ github.workspace }}/pytorch
           rm -rf pytorch_triton_xpu-*.whl
           if [ -z ${{ inputs.triton }} ] || [ "${{ inputs.triton }}" == "pinned" ];then
             TRITON_COMMIT_ID="$(cat .ci/docker/ci_commit_pins/triton-xpu.txt)"
@@ -192,6 +177,8 @@ jobs:
           fi
       - name: Torch Config
         run: |
+          source activate sycl_free_fucntion_baseline
+          source ${{ github.workspace }}/torch-xpu-ops/.github/scripts/env_test.sh
           printenv
           python -c "import torch; print(torch.__config__.show())"
           python -c "import torch; print(torch.__config__.parallel_info())"
@@ -216,4 +203,5 @@ jobs:
       - name: Cleanup workspace
         if: ${{ always() }}
         run: |
-          chmod 777 /__w /github ./ -R
+          chmod 777 ./ -R
+          find ./ |grep -v "^\./$" |xargs rm -rf

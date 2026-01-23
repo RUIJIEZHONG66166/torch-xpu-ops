@@ -49,30 +49,7 @@ git submodule sync && git submodule update --init --recursive
 python -m pip install -r requirements.txt
 python -m pip install mkl-static==2025.2.0 mkl-include==2025.2.0
 export USE_STATIC_MKL=1
-if [ "${XPU_ONEAPI_PATH}" == "" ];then
-    export PYTORCH_EXTRA_INSTALL_REQUIREMENTS=" \
-        intel-cmplr-lib-rt==2025.3.1 | \
-        intel-cmplr-lib-ur==2025.3.1 | \
-        intel-cmplr-lic-rt==2025.3.1 | \
-        intel-sycl-rt==2025.3.1 | \
-        oneccl-devel==2021.17.1 | \
-        oneccl==2021.17.1 | \
-        impi-rt==2021.17.0 | \
-        onemkl-sycl-blas==2025.3.0 | \
-        onemkl-sycl-dft==2025.3.0 | \
-        onemkl-sycl-lapack==2025.3.0 | \
-        onemkl-sycl-rng==2025.3.0 | \
-        onemkl-sycl-sparse==2025.3.0 | \
-        dpcpp-cpp-rt==2025.3.1 | \
-        intel-opencl-rt==2025.3.1 | \
-        mkl==2025.3.0 | \
-        intel-openmp==2025.3.1 | \
-        tbb==2022.3.0 | \
-        tcmlib==1.4.1 | \
-        umf==1.0.2 | \
-        intel-pti==0.15.0
-    "
-fi
+
 
 # Build
 sed -i "s/checkout --quiet \${TORCH_XPU_OPS_COMMIT}/log -n 1/g" caffe2/CMakeLists.txt
@@ -80,10 +57,7 @@ git diff
 WERROR=1 python setup.py bdist_wheel
 
 # Post Build
-python -m pip install patchelf
-rm -rf ./tmp
-bash third_party/torch-xpu-ops/.github/scripts/rpath.sh ${WORKSPACE}/pytorch/dist/torch*.whl
-python -m pip install --force-reinstall tmp/torch*.whl
+python -m pip install --force-reinstall dist/torch*.whl
 
 # Verify
 cd ${WORKSPACE}
@@ -94,7 +68,7 @@ xpu_is_compiled="$(python -c 'import torch; print(torch.xpu._is_compiled())')"
 
 # Save wheel
 if [ "${xpu_is_compiled,,}" == "true" ];then
-    cp ${WORKSPACE}/pytorch/tmp/torch*.whl ${WORKSPACE}
+    cp ${WORKSPACE}/pytorch/dist/torch*.whl ${WORKSPACE}
 else
     echo "Build got failed!"
     exit 1

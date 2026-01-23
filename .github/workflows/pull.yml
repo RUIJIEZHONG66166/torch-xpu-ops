@@ -50,7 +50,6 @@ jobs:
           bash third_party/torch-xpu-ops/.github/scripts/lintrunner.sh
 
   conditions-filter:
-    if: ${{ github.repository_owner == 'intel' && github.event.pull_request.draft == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
